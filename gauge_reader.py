@@ -2,10 +2,16 @@ import time
 import datetime
 import serial
 import serial.tools.list_ports
+
+print('Available ports:')
 print([comport.device for comport in serial.tools.list_ports.comports()])
 
-ser = serial.Serial("COM7", 9600, timeout=1, bytesize=serial.EIGHTBITS, parity='N', stopbits=serial.STOPBITS_ONE)
-
+def establishConnection(port):
+    try:
+        ser = serial.Serial(port, 9600, timeout=1, bytesize=serial.EIGHTBITS, parity='N', stopbits=serial.STOPBITS_ONE)
+        return ser
+    except:
+        print('Could not establish connection to specified port')
 
 #Queries the Pfeiffer TPG 361 gauge controller for the current pressure reading
 def getPressure():
@@ -20,31 +26,38 @@ def getPressure():
 
 def write2File(filename, time, pressure):
     outputFile = open(filename, 'a')
-    outputFile.write(f'{current_time}\t{current_pressure}\n')
+    outputFile.write(f'{time}\t{pressure}\n')
     outputFile.close()
 
-fileName = 'pressure_log'
+def logPressures():
+    fileName = 'pressure_log'
 
-date = datetime.datetime.now().strftime("%m%d%y_%H%M")
-outputFile = open(f'{fileName}_{date}.txt', "w")
-outputFile.write('Time\tPressure (Torr)\n')
-outputFile.close()
+    date = datetime.datetime.now().strftime("%m%d%y_%H%M")
+    outputFile = open(f'{fileName}_{date}.txt', "w")
+    outputFile.write('Time\tPressure (Torr)\n')
+    outputFile.close()
 
-t0 = time.time()
+    t0 = time.time()
 
-times = []
-pressures = []
-while True:
-    current_time = time.time()
-    current_pressure = getPressure()
+    times = []
+    pressures = []
+    while True:
+        current_time = time.time()
+        current_pressure = getPressure()
 
-    times.append(current_time)
-    pressures.append(current_pressure)
-    print(current_pressure)
-    
-    write2File(f'{fileName}_{date}.txt', current_time, current_pressure)
+        times.append(current_time)
+        pressures.append(current_pressure)
+        print(current_pressure)
+        
+        write2File(f'{fileName}_{date}.txt', current_time, current_pressure)
 
-    time.sleep(60)
+        time.sleep(60)
+
+port = 'COM7'
+
+ser = establishConnection(port)
+
+logPressures()
     
 
 
