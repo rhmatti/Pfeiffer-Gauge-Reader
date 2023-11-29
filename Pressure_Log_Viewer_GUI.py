@@ -160,6 +160,7 @@ class Pressure_Plotter:
             self.ax.set_xlabel('Epoch Time (s)')
             self.ax.get_yaxis().set_major_formatter("{x:.2e}")
             self.ax.set_yscale('log')
+            self.ax.set_title(f'Current Pressure - {self.pressure[-1]} Torr')
     
     def moving_average(self, array):
         n = 15
