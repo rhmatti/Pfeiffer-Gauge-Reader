@@ -43,6 +43,7 @@ class Pressure_Plotter:
         self.ax = None
         self.toolbar = None
         self.update = False
+        self.first = True
         
         self.work_dir = None
         self.header = None
@@ -115,6 +116,7 @@ class Pressure_Plotter:
             print(self.points)
             self.times = self.times[-self.points:]
             self.pressures = self.pressures[-self.points:]
+        self.first = True
 
     def update_values(self):
         while True:
@@ -143,18 +145,21 @@ class Pressure_Plotter:
         
     
     def animate_fig(self, _):
-        self.ax.clear()
+        if self.update or self.first:
+            self.first = False
+            self.ax.clear()
 
-        #self.ax.plot(self.times, self.pressures, label='Raw Value')
-        self.ax.plot(self.times, self.pressures, color = colors[0], linestyle = '-', linewidth = 2)
-        #self.ax.plot(self.times, self.avgs, label='Moving Average')
+            #self.ax.plot(self.times, self.pressures, label='Raw Value')
+            self.ax.plot(self.times, self.pressures, color = colors[0], linestyle = '-', linewidth = 2)
+            self.ax.set_xlim(np.amin(self.times), np.amax(self.times))
+            #self.ax.plot(self.times, self.avgs, label='Moving Average')
 
-        #self.ax.legend()
+            #self.ax.legend()
 
-        self.ax.set_ylabel('Pressure (Torr)')
-        self.ax.set_xlabel('Epoch Time (s)')
-        self.ax.get_yaxis().set_major_formatter("{x:.2e}")
-        self.ax.set_yscale('log')
+            self.ax.set_ylabel('Pressure (Torr)')
+            self.ax.set_xlabel('Epoch Time (s)')
+            self.ax.get_yaxis().set_major_formatter("{x:.2e}")
+            self.ax.set_yscale('log')
     
     def moving_average(self, array):
         n = 15
